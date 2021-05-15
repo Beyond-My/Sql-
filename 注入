@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+from flask import Flask
+import pymysql
+import json
+
+app = Flask(__name__)
+
+def get_coon():
+    return pymysql.connect(
+        host='127.0.0.1', user='root', passwd="root", db='student'
+        # 启动mysql: mysql -u root -p
+    )
+def query_mysql_data(data_id):
+    conn = get_coon()
+    # 有sql注入
+    sql = "select  * from user where id=%s" % data_id
+    # 无sql注入
+    # sql = 'select * from user where id=%s'
+    # print(sql)
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    #cursor.execute(sql, [data_id])
+    print(cursor._last_executed)
+    #print(cursor.fetchall())
+    conn.close()
+    return f"你查询的数据为:{cursor.fetchall()}\n"+f"你执行的SQL语句为:{sql}"
+    conn.close()
+    # return res
+
+
+@app.route("/query_data/<data_id>")
+def query_data(data_id):
+ #   return json.dumps(
+    return  query_mysql_data(data_id)
+#    )
+
+if __name__ == "__main__":
+    app.run()
